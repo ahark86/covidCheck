@@ -1,7 +1,17 @@
 #!/usr/bin/env python
 
 from selenium import webdriver
-import time, requests, bs4
+from twython import Twython
+import time
+from auth import (
+	apiKey,
+	apiSecretKey,
+	bearerToken,
+	accessToken,
+	accessSecretToken,
+	wle_oauth_token,
+	wle_oauth_token_secret,
+)
 
 def findAndClick(cssSelector):
 	elem = browser.find_element_by_css_selector(cssSelector)
@@ -9,6 +19,19 @@ def findAndClick(cssSelector):
 
 def addDataPoint(cssSelector):
 	covidData.append(browser.find_element_by_css_selector(cssSelector).text)
+
+def formatTweet(dataList):
+	text = ('Results as of ' + dataList[0] + ' - ' + 
+		'Updated on ' + dataList[1] + ( '\n' * 2 ) + 
+		dataList[2] + ': ' + dataList[3] + '\n' + 
+		dataList[4] + ': ' + dataList[5] + '\n' + 
+		dataList[6] + ': ' + dataList[7] + ( '\n' * 2 ) + 
+		dataList[8] + ': ' + dataList[9] + '\n' + 
+		dataList[10] + ': ' + dataList[11] + '\n' + 
+		dataList[12] + ': ' + dataList[13])
+
+	return text
+
 
 #Open Firefox and navigate to IN coronavirus portal
 browser = webdriver.Firefox()
@@ -61,6 +84,11 @@ addDataPoint('div.col-md-4:nth-child(8) > div:nth-child(1) > div:nth-child(3) > 
 browser.quit()
 
 #Issue Tweet using scraped data
-for i in covidData:
-	print(i)
+tweetContent = formatTweet(covidData)
+
+twitter = Twython(apiKey, apiSecretKey, wle_oauth_token, wle_oauth_token_secret)
+twitter.update_status(status=tweetContent)
+
+
+
 
